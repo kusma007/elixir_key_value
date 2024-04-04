@@ -4,11 +4,15 @@ defmodule KeyValue.Application do
   Основной модуль приложения
   Запускает сервер, который будет доступен по адресу http://127.0.0.1:{{cowboy_port}}/
   :cowboy_port устанавливается в файле config/config.exs
+
   """
 
   use Application
   require Logger
 
+  @doc """
+    Запуск супервизора и сервера
+  """
   @impl true
   @spec start(any(), any()) :: {:error, any()} | {:ok, pid()}
   def start(_type, _args) do

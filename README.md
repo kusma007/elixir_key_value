@@ -1,20 +1,34 @@
-# KeyValue
+# Веб сервер хранилища Ключ-значения
 
-**TODO: Add description**
+## Установка
 
-## Installation
-
-
+```shell
+git clone https://github.com/kusma007/elixir_key_value.git
+cd elixir_key_value
+```
 
 ```elixir
 mix deps.get
 ```
 
-mix run --no-halt
-
+## Запуск тестов
+```
 mix test
+```
 
-# Порт для запуска указывается через переменную cowboy_port в файле config/config.exs
+## Запуск сервера
+```
+mix run --no-halt
+```
+
+По умолчанию доступен по адресу http://127.0.0.1:8080
+
+Порт для запуска указывается через переменную cowboy_port в файле config/config.exs
+
+## Запуск сборщика документации
+```
+mix docs
+```
 
 
 

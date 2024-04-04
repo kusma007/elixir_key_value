@@ -25,6 +25,7 @@ defmodule KeyValue.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ex2ms, "~> 1.0"},
       {:json, "~> 1.4"},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
     ]
   end
 end

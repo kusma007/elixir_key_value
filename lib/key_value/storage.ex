@@ -2,13 +2,11 @@ defmodule KeyValue.Storage do
   @moduledoc """
 
   Модуль хранилища
-  """
-      # @after_compile KeyValue.StorageManagment
-  # import Ex2ms
-  # use KeyValue.StorageManagment, table_name: :storage
-  # import Ex2ms
+  Создает хранилище с параметром :table_name установленным в config/config.exs
+  Содержит методы получения, сохранения, обновления и удаления записей
 
-  # @table_name :storage
+  """
+
   import Ex2ms
 
   def get_table_name() do
