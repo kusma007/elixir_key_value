@@ -1,3 +1,4 @@
+# R: Тут в целом все ок, но остается вопрос зачем это =)
 defmodule KeyValue.Distributor do
   @moduledoc """
 
