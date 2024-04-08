@@ -1,3 +1,4 @@
+# R: Тут в целом то же все норм, за исключением того, что KeyValue закомменчен
 defmodule KeyValue.Application do
   @moduledoc """
 
@@ -18,6 +19,10 @@ defmodule KeyValue.Application do
   def start(_type, _args) do
     children = [
       {Plug.Cowboy, scheme: :http, plug: KeyValue.Router, options: [port: cowboy_port()]}, # Запуск сервера http
+
+      # R: А почему закомментил? Это было верное решение, шедулер был бы запущен из под супервизора
+      #    если бы он упал, его бы перезапутсили
+
       # KeyValue # Запуск шкедулера для авто очистки записей из хранилища
     ]
 

@@ -26,13 +26,19 @@ defmodule KeyValue.Router do
   # Главная страница, которая обрабатывает метод и значения
   # Возвращает код ответа и сообщения
   # И запускает шкедулер автоудаления
+  # R: Вместо match, можно было бы отдельно написать get, post, put, delete и тогда надобность в
+  #    Distributor отпала бы сама собой.
   match "/" do
+    # R: Вот тут 100% что то пошло не по плану =) Шедулер обязательно нужно запустить в Application
+    #    он у тебя там и запускался, но видимо потом ты его решил перенести судя
     children = [
       KeyValue # Запуск шкедулера для авто очистки записей из хранилища
     ]
     opts = [strategy: :one_for_one, name: KeyValue.Supervisor]
     Supervisor.start_link(children, opts)
 
+    # R: Я бы тут в целом не делал бы Distributor модуль, можно было бы все в router.ex написать.
+    #    Кода там мало, ничего страшного если будут разные зоны отвественности.
     # Вызываем метод обработки запросов в зависимости от метода и параметров переданных в запросе
     {status, result} = case Distributor.to_storage(conn.method, conn.params) do
       {status} -> {status, ''}
@@ -43,6 +49,7 @@ defmodule KeyValue.Router do
     send_resp(conn, status, result)
   end
 
+  # R: Функция не имеет смысла, можно сразу бахнуть по месту JSON.encode!(...)
   # Кодируем в json и возвращаем ответ
   defp get_json_result(item) do
     {:ok, result} = JSON.encode(item)
