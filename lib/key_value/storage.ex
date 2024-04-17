@@ -9,35 +9,34 @@ defmodule KeyValue.Storage do
 
   import Ex2ms
 
+  @spec get_table_name() :: any()
   def get_table_name() do
     Application.get_env(:key_value, :table_name, :storage)
   end
 
-  @doc """
-    Открывает хранилище
-  """
-  @spec open() :: any()
-  def open() do
-    case :dets.open_file(get_table_name(), [type: :set]) do
-      {:ok, table} ->
-        table
+  def open_close(func) do
+    storage = :dets.open_file(get_table_name(), [type: :set])
+    |> case do
+      {:ok, storage} -> storage
+      other -> throw other
     end
-  end
 
-  @doc """
-    Закрывает хранилище
-  """
-  @spec close() :: :ok | {:error, any()}
-  def close(), do: :dets.close(get_table_name())
+    {:ok, func.(storage)}
+
+  catch e, err_v ->
+    {e,err_v}
+  after
+    :dets.close(get_table_name())
+  end
 
   @doc """
     Сохраняет запись в хранилище, если такой ключ ещё не создан
   """
   @spec insert(any(), any(), number()) :: boolean() | {:error, any()}
   def insert(key, value, ttl) do
-    open()
-    result = :dets.insert_new(get_table_name(), {key, value, get_time() + ttl})
-    close()
+    {:ok, result} = open_close fn table_name ->
+      :dets.insert_new(table_name, {key, value, get_time() + ttl})
+    end
     result
   end
 
@@ -52,8 +51,9 @@ defmodule KeyValue.Storage do
   """
   @spec get(any()) :: :error | map()
   def get(key) do
-    result = get(open(), key)
-    close()
+    {:ok, result} = open_close fn table_name ->
+      get(table_name, key)
+    end
     result
   end
 
@@ -98,11 +98,12 @@ defmodule KeyValue.Storage do
   """
   @spec update(any(), any(), any()) :: :error | :ok
   def update(key, value, ttl) do
-    result = case get(open(), key) do
-      :error -> :error
-      _ -> only_insert({key, value, get_time() + ttl})
+    {:ok, result} = open_close fn table_name ->
+      case get(table_name, key) do
+        :error -> :error
+        _ -> only_insert({key, value, get_time() + ttl})
+      end
     end
-    close()
     result
   end
 
@@ -122,12 +123,12 @@ defmodule KeyValue.Storage do
   """
   @spec check_and_delete(any()) :: :error | :ok
   def check_and_delete(key) do
-    table = open()
-    result = case get(table, key) do
-      :error -> :error
-      _ -> delete(table, key)
+    {:ok, result} = open_close fn table_name ->
+      case get(table_name, key) do
+        :error -> :error
+        _ -> delete(table_name, key)
+      end
     end
-    close()
     result
   end
 
@@ -136,8 +137,9 @@ defmodule KeyValue.Storage do
   """
   @spec delete(any()) :: :error | :ok
   def delete(key) do
-    result = delete(open(), key)
-    close()
+    {:ok, result} = open_close fn table_name ->
+      delete(table_name, key)
+    end
     result
   end
 
@@ -157,10 +159,11 @@ defmodule KeyValue.Storage do
   """
   @spec clear_ttl() :: non_neg_integer() | {:error, any()}
   def clear_ttl() do
-    time = get_time()
-    count = :dets.select_delete(open(), fun do {_, _, ttl} when ttl < ^time -> true end)
-    close()
-    count
+    {:ok, result} = open_close fn table_name ->
+      time = get_time()
+      :dets.select_delete(table_name, fun do {_, _, ttl} when ttl < ^time -> true end)
+    end
+    result
   end
 
   @doc """
@@ -168,9 +171,10 @@ defmodule KeyValue.Storage do
   """
   @spec get_ttl_expire() :: list() | {:error, any()}
   def get_ttl_expire() do
-    time = get_time()
-    result = :dets.select(open(), fun do {key, _, ttl} when ttl < ^time -> key end)
-    close()
+    {:ok, result} = open_close fn table_name ->
+      time = get_time()
+      :dets.select(table_name, fun do {key, _, ttl} when ttl < ^time -> key end)
+    end
     result
   end
 
@@ -179,7 +183,10 @@ defmodule KeyValue.Storage do
   """
   @spec get_all() :: [list()] | {:error, any()}
   def get_all() do
-    :dets.match(open(), {:"$1", :"$2", :"$3"})
+    {:ok, result} = open_close fn table_name ->
+      :dets.match(table_name, {:"$1", :"$2", :"$3"})
+    end
+    result
   end
 
   def delete_all() do

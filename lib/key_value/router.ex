@@ -25,13 +25,7 @@ defmodule KeyValue.Router do
 
   # Главная страница, которая обрабатывает метод и значения
   # Возвращает код ответа и сообщения
-  # И запускает шкедулер автоудаления
   match "/" do
-    children = [
-      KeyValue # Запуск шкедулера для авто очистки записей из хранилища
-    ]
-    opts = [strategy: :one_for_one, name: KeyValue.Supervisor]
-    Supervisor.start_link(children, opts)
 
     # Вызываем метод обработки запросов в зависимости от метода и параметров переданных в запросе
     {status, result} = case Distributor.to_storage(conn.method, conn.params) do

@@ -6,6 +6,7 @@ defmodule KeyValue.Application do
   :cowboy_port устанавливается в файле config/config.exs
 
   """
+alias KeyValue.ClearScheduler
 
   use Application
   require Logger
@@ -18,7 +19,7 @@ defmodule KeyValue.Application do
   def start(_type, _args) do
     children = [
       {Plug.Cowboy, scheme: :http, plug: KeyValue.Router, options: [port: cowboy_port()]}, # Запуск сервера http
-      # KeyValue # Запуск шкедулера для авто очистки записей из хранилища
+      ClearScheduler # Запуск шкедулера для авто очистки записей из хранилища
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

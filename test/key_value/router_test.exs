@@ -8,10 +8,7 @@ defmodule KeyValue.RouterTest do
   @opts Router.init([])
 
   setup_all do
-    Application.put_env(:key_value, :table_name, :storage_test)
-
     on_exit fn ->
-      Application.put_env(:key_value, :table_name, :storage)
       File.rm("storage_test")
       :ok
     end

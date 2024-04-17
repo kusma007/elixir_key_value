@@ -5,10 +5,7 @@ defmodule KeyValue.StorageTest do
   alias KeyValue.Storage
 
   setup_all do
-    Application.put_env(:key_value, :table_name, :storage_test)
-
     on_exit fn ->
-      Application.put_env(:key_value, :table_name, :storage)
       File.rm("storage_test")
       :ok
     end

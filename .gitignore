@@ -26,3 +26,4 @@ key_value-*.tar
 /tmp/
 
 storage
+storage_test
